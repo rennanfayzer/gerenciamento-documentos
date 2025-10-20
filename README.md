@@ -332,19 +332,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 ## 🔒 Segurança
 
-### ⚠️ Informações Confidenciais
-
-**NUNCA** compartilhe ou versione no Git:
-
-- ❌ Senhas de banco de dados
-- ❌ Secret keys do Django
-- ❌ Tokens de API
-- ❌ Credenciais de email
-- ❌ Chaves SSH/certificados
-- ❌ Arquivos `.env`
-
-### ✅ Boas Práticas de Segurança
-
 #### 1. **Arquivo `.env` para Desenvolvimento**
 
 Crie um arquivo `.env` na raiz do projeto `documentos/` (este arquivo está no .gitignore):
@@ -422,8 +409,6 @@ git status
 # Verifique o conteúdo dos arquivos
 git diff
 
-# NUNCA adicione arquivos .env ao Git
-git add .env  # ❌ NÃO FAÇA ISSO!
 ```
 
 #### 6. **Arquivo `.env.example`**
@@ -742,7 +727,7 @@ coverage html  # Gera relatório HTML
 
 ---
 
-## 🤝 Contribuindo
+## Alterações
 
 Adições Siga estas etapas:
 
@@ -771,13 +756,13 @@ Adições Siga estas etapas:
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto é de propiedade do Grupo Franzen
 
 ---
 
 ## 👥 Equipe
 
-**Desenvolvido por:** Grupo Franzen
+**Desenvolvido por:** Grupo Franzen - Rennan Miranda
 
 **Contato:** [GitHub](https://github.com/GrupoFranzen)
 
@@ -833,4 +818,4 @@ taskkill /PID <PID> /F
 
 ---
 
-**⭐ Se este projeto foi útil, considere dar uma estrela no GitHub!**
+**⭐ Fim**
