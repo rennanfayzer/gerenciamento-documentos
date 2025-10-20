@@ -1,0 +1,165 @@
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    /* Ajustes para telas pequenas */
+    .container-fluid {
+        padding: 10px;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+    }
+    
+    .table-responsive {
+        margin-bottom: 15px;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 5px;
+    }
+    
+    /* Ajustes para o dashboard */
+    .metric-card {
+        margin-bottom: 15px;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+    
+    /* Ajustes para formulários */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-row {
+        margin-right: -5px;
+        margin-left: -5px;
+    }
+    
+    .form-row > .col,
+    .form-row > [class*="col-"] {
+        padding-right: 5px;
+        padding-left: 5px;
+    }
+    
+    /* Ajustes para modais */
+    .modal-dialog {
+        margin: 10px;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    /* Ajustes para a navegação */
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .nav-link {
+        padding: 0.5rem;
+    }
+    
+    /* Ajustes para tabelas */
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+    
+    /* Ajustes para botões de ação */
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .action-buttons .btn {
+        margin-bottom: 5px;
+    }
+}
+
+/* Ajustes para telas muito pequenas */
+@media (max-width: 576px) {
+    .container-fluid {
+        padding: 5px;
+    }
+    
+    .card {
+        margin-bottom: 10px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.3rem;
+    }
+    
+    .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .modal-dialog {
+        margin: 5px;
+    }
+    
+    .modal-body {
+        padding: 10px;
+    }
+}
+
+/* Ajustes para telas grandes */
+@media (min-width: 1200px) {
+    .container-fluid {
+        max-width: 1400px;
+    }
+    
+    .chart-container {
+        height: 400px;
+    }
+}
+
+/* Ajustes para impressão */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .container-fluid {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .card {
+        border: none;
+        box-shadow: none;
+    }
+    
+    .table {
+        width: 100% !important;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 100%;
+    min-height: 300px;
+    height: 300px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+canvas {
+    max-width: 100% !important;
+    height: 300px !important;
+} 

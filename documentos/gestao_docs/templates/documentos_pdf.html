@@ -1,0 +1,33 @@
+<h1>Relatório de Documentos</h1>
+<table border="1" cellspacing="0" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Funcionário</th>
+            <th>Documento</th>
+            <th>Tipo</th>
+            <th>Data Emissão</th>
+            <th>Data Validade</th>
+            <th>Criado por</th>
+            <th>Criado em</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in documentos %}
+        <tr>
+            <td>{{ doc.funcionario.nome }}</td>
+            <td>{{ doc.nome_documento }}</td>
+            <td>{{ doc.tipo_documento }}</td>
+            <td>{{ doc.data_emissao|date:"d/m/Y" }}</td>
+            <td>{{ doc.data_validade|date:"d/m/Y" }}</td>
+            <td>
+                {% if doc.criado_por %}
+                    {{ doc.criado_por.username }}
+                {% else %}
+                    ---
+                {% endif %}
+            </td>
+            <td>{{ doc.created_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard Geral</h2>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 bg-danger text-white h-100 position-relative kpi-card" data-bs-toggle="tooltip" title="Documentos vencidos no sistema">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-exclamation-octagon display-4 mb-2"></i>
+                    <h5 class="card-title">Vencidos</h5>
+                    <h2 class="card-text mb-0 animate-count" data-count="{{ documentos_vencidos.count }}">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 bg-warning text-dark h-100 position-relative kpi-card" data-bs-toggle="tooltip" title="Documentos em estado crítico (vencem em até 10 dias)">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-exclamation-triangle display-4 mb-2"></i>
+                    <h5 class="card-title">Críticos</h5>
+                    <h2 class="card-text mb-0 animate-count" data-count="{{ documentos_criticos.count }}">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 bg-success text-white h-100 position-relative kpi-card" data-bs-toggle="tooltip" title="Documentos em dia (validade acima de 40 dias)">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-check-circle display-4 mb-2"></i>
+                    <h5 class="card-title">Em Dia</h5>
+                    <h2 class="card-text mb-0 animate-count" data-count="{{ documentos_em_dia.count }}">0</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card shadow-sm border-0 bg-info text-white h-100 position-relative kpi-card" data-bs-toggle="tooltip" title="Total de documentos cadastrados">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <i class="bi bi-archive display-4 mb-2"></i>
+                    <h5 class="card-title">Total</h5>
+                    <h2 class="card-text mb-0 animate-count" data-count="{{ total_documentos }}">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-light d-flex align-items-center">
+                    <i class="bi bi-pie-chart me-2 text-primary"></i>
+                    <strong>Distribuição de Documentos por Status</strong>
+                </div>
+                <div class="card-body chart-container position-relative">
+                    <canvas id="statusChart"></canvas>
+                    <div id="statusChartLegend" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-header bg-light d-flex align-items-center">
+                    <i class="bi bi-bar-chart-line me-2 text-info"></i>
+                    <strong>Documentos por Tipo</strong>
+                </div>
+                <div class="card-body chart-container position-relative">
+                    <canvas id="tipoChart"></canvas>
+                    <div id="tipoChartLegend" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light d-flex align-items-center">
+                    <i class="bi bi-alarm me-2 text-danger"></i>
+                    <strong>Próximos Documentos a Vencer</strong>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive mb-0">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Documento</th>
+                                    <th>Funcionário</th>
+                                    <th>Validade</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in proximos_vencer %}
+                                <tr>
+                                    <td>{{ doc.nome_documento }}</td>
+                                    <td>{{ doc.funcionario.nome }}</td>
+                                    <td>{{ doc.data_validade|date:'d/m/Y' }}</td>
+                                    <td>
+                                        {% if doc.dias_restantes < 0 %}
+                                            <span class="badge bg-danger" data-bs-toggle="tooltip" title="Documento vencido">Vencido</span>
+                                        {% elif doc.dias_restantes <= 10 %}
+                                            <span class="badge bg-warning text-dark" data-bs-toggle="tooltip" title="Documento em estado crítico">Crítico</span>
+                                        {% elif doc.dias_restantes <= 40 %}
+                                            <span class="badge bg-info text-dark" data-bs-toggle="tooltip" title="Documento vencendo em breve">Vencendo</span>
+                                        {% else %}
+                                            <span class="badge bg-success" data-bs-toggle="tooltip" title="Documento em dia">Em Dia</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'documento_edit' doc.id %}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Editar"><i class="bi bi-pencil"></i></a>
+                                        <a href="{% url 'documento_delete' doc.id %}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Excluir"><i class="bi bi-trash"></i></a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center text-muted">Nenhum documento a vencer em breve.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Documento</th>
+                    <th>Funcionário</th>
+                    <th>Validade</th>
+                    <th>Status</th>
+                    <th>Arquivo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="documentTableBody">
+                {# Conteúdo da tabela será preenchido via JavaScript #}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3">
+        {# Adicionar os controles de paginação aqui, se ainda for necessário com a interatividade #}
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Declarar variáveis dos gráficos no escopo global do script
+    var statusChart = null;
+    var tipoChart = null;
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        // Resetar tamanho do canvas antes de criar o gráfico
+        const statusCanvas = document.getElementById('statusChart');
+        statusCanvas.removeAttribute('style');
+        statusCanvas.removeAttribute('width');
+        statusCanvas.removeAttribute('height');
+        if (statusChart) {
+            statusChart.destroy();
+        }
+        var statusCtx = statusCanvas.getContext('2d');
+        statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Vencidos', 'Críticos', 'Vencendo', 'Em Dia'],
+                datasets: [{
+                    data: [{{ docs_vencidos }}, {{ docs_criticos }}, {{ docs_vencendo }}, {{ documentos_em_dia.count }}],
+                    backgroundColor: ['#dc3545', '#6f42c1', '#ffc107', '#28a745'],
+                    hoverBackgroundColor: ['#c82333', '#5a2b9f', '#e0a800', '#218838']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: getComputedStyle(document.body).color,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                var value = context.parsed;
+                                var total = context.chart._metasets[context.datasetIndex].total;
+                                var percentage = total ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                },
+                onClick: function(event, elements) {
+                    if (elements.length > 0) {
+                        const clickedElementIndex = elements[0].index;
+                        const label = statusChart.data.labels[clickedElementIndex];
+                        filterDashboard(label);
+                    }
+                }
+            }
+        });
+
+        const tipoCanvas = document.getElementById('tipoChart');
+        tipoCanvas.removeAttribute('style');
+        tipoCanvas.removeAttribute('width');
+        tipoCanvas.removeAttribute('height');
+        if (tipoChart) {
+            tipoChart.destroy();
+        }
+        var tipoCtx = tipoCanvas.getContext('2d');
+        tipoChart = new Chart(tipoCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ tipos_documentos|safe }},
+                datasets: [{
+                    label: 'Quantidade',
+                    data: {{ quantidade_por_tipo|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: getComputedStyle(document.body).color,
+                            font: { size: 13 }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: getComputedStyle(document.body).color,
+                            font: { size: 13 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Função para filtrar o dashboard
+        function filterDashboard(status) {
+            let url = '{% url "get_filtered_dashboard_data" %}';
+            if (status !== 'Todos') {
+                url += `?status=${status}`;
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Atualizar o gráfico de tipos
+                    tipoChart.data.labels = data.tipos_documentos;
+                    tipoChart.data.datasets[0].data = data.quantidade_por_tipo;
+                    tipoChart.update();
+
+                    // Atualizar a tabela de documentos
+                    updateDocumentTable(data.documentos);
+                })
+                .catch(error => console.error('Erro ao buscar dados filtrados:', error));
+        }
+
+        // Função para atualizar a tabela de documentos
+        function updateDocumentTable(documentos) {
+            const tableBody = document.querySelector('#documentTableBody');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = ''; // Limpa a tabela atual
+
+            if (documentos.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum documento encontrado com este filtro.</td></tr>';
+                return;
+            }
+
+            documentos.forEach(doc => {
+                const row = document.createElement('tr');
+                let statusClass = '';
+                if (doc.dias_restantes < 0) {
+                    statusClass = 'table-danger'; // Vencido: Vermelho
+                } else if (doc.dias_restantes <= 10) {
+                    statusClass = 'table-purple'; // Crítico: Roxo
+                } else if (doc.dias_restantes <= 40) {
+                    statusClass = 'table-yellow'; // Vencendo: Amarelo
+                } else {
+                    statusClass = 'table-success'; // Em Dia: Verde
+                }
+                row.className = statusClass;
+
+                row.innerHTML = `
+                    <td>${doc.nome_documento}</td>
+                    <td>${doc.funcionario_nome}</td>
+                    <td>${doc.data_validade}</td>
+                    <td>
+                        <span class="badge ${statusClass.replace('table-', 'bg-')} badge-pill">
+                            ${doc.dias_restantes < 0 ? 'Vencido' :
+                               doc.dias_restantes <= 10 ? 'Crítico' :
+                               doc.dias_restantes <= 40 ? 'Vencendo' : 'Em Dia'}
+                        </span>
+                    </td>
+                    <td>
+                        ${doc.arquivo_url ? `<a href="${doc.arquivo_url}" target="_blank" class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i> Visualizar</a>` : '---'}
+                    </td>
+                    <td>
+                        <a href="/documento/edit/${doc.id}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="Editar"><i class="bi bi-pencil"></i></a>
+                        <a href="/documento/delete/${doc.id}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Excluir"><i class="bi bi-trash"></i></a>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    });
+</script>
+{% endblock %} 

@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4">Busca Avançada</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="get" class="advanced-search-form">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Tipo de Busca</label>
+                            <select name="search_type" class="form-control" id="searchType">
+                                <option value="documentos">Documentos</option>
+                                <option value="funcionarios">Funcionários</option>
+                                <option value="mobilizacoes">Mobilizações</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros para Documentos -->
+                <div id="documentosFilters" class="search-filters">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Nome do Documento</label>
+                                {% render_field form.nome class="form-control" %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select name="status" class="form-control">
+                                    <option value="">Todos</option>
+                                    <option value="vencido">Vencido</option>
+                                    <option value="critico">Crítico</option>
+                                    <option value="vencendo">Vencendo</option>
+                                    <option value="em_dia">Em Dia</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Data de Vencimento</label>
+                                <div class="input-group">
+                                    <input type="date" name="data_inicio" class="form-control">
+                                    <input type="date" name="data_fim" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros para Funcionários -->
+                <div id="funcionariosFilters" class="search-filters" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Nome do Funcionário</label>
+                                {% render_field form.nome_funcionario class="form-control" %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Cargo</label>
+                                {% render_field form.cargo class="form-control" %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select name="status_funcionario" class="form-control">
+                                    <option value="">Todos</option>
+                                    <option value="ativo">Ativo</option>
+                                    <option value="inativo">Inativo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros para Mobilizações -->
+                <div id="mobilizacoesFilters" class="search-filters" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Local</label>
+                                {% render_field form.local class="form-control" %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Data</label>
+                                <div class="input-group">
+                                    <input type="date" name="data_inicio_mob" class="form-control">
+                                    <input type="date" name="data_fim_mob" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select name="status_mobilizacao" class="form-control">
+                                    <option value="">Todos</option>
+                                    <option value="ativa">Ativa</option>
+                                    <option value="concluida">Concluída</option>
+                                    <option value="cancelada">Cancelada</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo"></i> Limpar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resultados da Busca -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h4>Resultados</h4>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <a href="?{{ request.GET.urlencode }}&export=excel" class="btn btn-outline-success">
+                        <i class="bi bi-file-earmark-excel"></i> Exportar Excel
+                    </a>
+                    <a href="?{{ request.GET.urlencode }}&export=pdf" class="btn btn-outline-danger">
+                        <i class="bi bi-file-earmark-pdf"></i> Exportar PDF
+                    </a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            {% if search_type == 'documentos' %}
+                                <th>ID</th>
+                                <th>Nome do Documento</th>
+                                <th>Funcionário</th>
+                                <th>Status</th>
+                                <th>Validade</th>
+                                <th>Ações</th>
+                            {% elif search_type == 'funcionarios' %}
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Matrícula</th>
+                                <th>Status</th>
+                                <th>Locais</th>
+                                <th>Ações</th>
+                            {% elif search_type == 'mobilizacoes' %}
+                                <th>ID</th>
+                                <th>Local</th>
+                                <th>Data Início</th>
+                                <th>Data Fim</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resultado in resultados %}
+                            <tr>
+                                {% if search_type == 'documentos' %}
+                                    <td>{{ resultado.id }}</td>
+                                    <td>{{ resultado.nome_documento }}</td>
+                                    <td>{{ resultado.funcionario.nome }}</td>
+                                    <td>
+                                        {% if resultado.dias_restantes is not None %}
+                                            {% if resultado.dias_restantes < 0 %}
+                                                <span class="badge bg-danger">Vencido</span>
+                                            {% elif resultado.dias_restantes <= 10 %}
+                                                <span class="badge bg-warning text-dark">Crítico</span>
+                                            {% elif resultado.dias_restantes <= 40 %}
+                                                <span class="badge bg-info text-dark">Vencendo</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Em Dia</span>
+                                            {% endif %}
+                                        {% else %}
+                                            ---
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ resultado.data_validade|date:'d/m/Y' }}</td>
+                                    <td>
+                                        <a href="{% url 'documento_edit' resultado.id %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                                        <a href="{% url 'documento_delete' resultado.id %}" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
+                                    </td>
+                                {% elif search_type == 'funcionarios' %}
+                                    <td>{{ resultado.id }}</td>
+                                    <td>{{ resultado.nome }}</td>
+                                    <td>{{ resultado.matricula }}</td>
+                                    <td>
+                                        {% if resultado.ativo %}
+                                            <span class="badge bg-success">Ativo</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inativo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for local in resultado.local_mobilizacao.all %}
+                                            <span class="badge bg-info text-dark">{{ local.nome }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">Nenhum</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'funcionario_detail' resultado.id %}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
+                                        <a href="{% url 'funcionario_update' resultado.id %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                                    </td>
+                                {% elif search_type == 'mobilizacoes' %}
+                                    <td>{{ resultado.id }}</td>
+                                    <td>{{ resultado.nome }}</td>
+                                    <td>{{ resultado.data_inicio|date:'d/m/Y' }}</td>
+                                    <td>{{ resultado.data_fim|date:'d/m/Y' }}</td>
+                                    <td>{{ resultado.status }}</td>
+                                    <td>
+                                        <!-- Adicione ações se houver view/edição de mobilização -->
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">Nenhum resultado encontrado</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-3">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Próximo">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchType = document.getElementById('searchType');
+    const documentFilters = document.getElementById('documentosFilters');
+    const funcionarioFilters = document.getElementById('funcionariosFilters');
+    const mobilizacaoFilters = document.getElementById('mobilizacoesFilters');
+
+    searchType.addEventListener('change', function() {
+        // Esconde todos os filtros
+        documentFilters.style.display = 'none';
+        funcionarioFilters.style.display = 'none';
+        mobilizacaoFilters.style.display = 'none';
+
+        // Mostra os filtros selecionados
+        switch(this.value) {
+            case 'documentos':
+                documentFilters.style.display = 'block';
+                break;
+            case 'funcionarios':
+                funcionarioFilters.style.display = 'block';
+                break;
+            case 'mobilizacoes':
+                mobilizacaoFilters.style.display = 'block';
+                break;
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

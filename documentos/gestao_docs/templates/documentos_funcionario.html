@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Documentos de {{ funcionario.nome }}</h2>
+<ul>
+    {% for doc in documentos %}
+        <li>{{ doc.nome_documento }} ({{ doc.data_validade }})</li>
+    {% empty %}
+        <li>Nenhum documento cadastrado.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'listar_funcionarios' %}">Voltar</a>
+{% endblock %}

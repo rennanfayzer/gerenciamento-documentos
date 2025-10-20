@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="bi bi-bell"></i> Alertas de Documentos</h2>
+    <!-- Resumo no topo -->
+    <div class="row mb-3">
+        <div class="col-auto">
+            <span class="badge bg-danger"><i class="bi bi-exclamation-octagon"></i> Vencidos: <b>{{ total_vencidos }}</b></span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> Críticos: <b>{{ total_criticos }}</b></span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-info text-dark"><i class="bi bi-alarm"></i> Vencendo: <b>{{ total_vencendo }}</b></span>
+        </div>
+    </div>
+    <!-- Toggle agrupamento -->
+    <form method="get" class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+        <input type="hidden" name="status" value="{{ request.GET.status }}">
+        <input type="hidden" name="q" value="{{ request.GET.q }}">
+        <div class="btn-group me-2" role="group">
+            <button type="submit" name="group" value="local" class="btn btn-outline-primary {% if group == 'local' %}active{% endif %}"><i class="bi bi-geo-alt"></i> Por Local</button>
+            <button type="submit" name="group" value="funcionario" class="btn btn-outline-primary {% if group == 'funcionario' %}active{% endif %}"><i class="bi bi-person"></i> Por Funcionário</button>
+        </div>
+        <!-- Filtros rápidos -->
+        <select name="status" class="form-select w-auto">
+            <option value="">Todos</option>
+            <option value="vencidos" {% if request.GET.status == 'vencidos' %}selected{% endif %}>Vencidos</option>
+            <option value="criticos" {% if request.GET.status == 'criticos' %}selected{% endif %}>Críticos</option>
+            <option value="vencendo" {% if request.GET.status == 'vencendo' %}selected{% endif %}>Vencendo</option>
+        </select>
+        <input type="text" name="q" class="form-control w-auto" placeholder="Buscar por nome..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i> Filtrar</button>
+        <a href="?group={{ group }}" class="btn btn-outline-secondary"><i class="bi bi-x"></i> Limpar</a>
+        <a href="?group={{ group }}&status={{ request.GET.status }}&q={{ request.GET.q }}&export=excel" class="btn btn-outline-success"><i class="bi bi-file-earmark-excel"></i> Exportar Excel</a>
+        <a href="?group={{ group }}&status={{ request.GET.status }}&q={{ request.GET.q }}&export=pdf" class="btn btn-outline-danger"><i class="bi bi-file-earmark-pdf"></i> Exportar PDF</a>
+    </form>
+    <!-- Cards agrupados -->
+    <div class="row">
+        {% for nome, alertas in agrupados.items %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span>{% if group == 'local' %}<i class="bi bi-geo-alt"></i>{% else %}<i class="bi bi-person"></i>{% endif %} {{ nome }}</span>
+                    <span class="badge bg-danger">{{ alertas.vencidos|length }}</span>
+                    <span class="badge bg-warning text-dark">{{ alertas.criticos|length }}</span>
+                    <span class="badge bg-info text-dark">{{ alertas.vencendo|length }}</span>
+                </div>
+                <div class="card-body p-2">
+                    {% if not alertas.vencidos and not alertas.criticos and not alertas.vencendo %}
+                        <span class="text-muted">Nenhum documento em alerta.</span>
+                    {% endif %}
+                    {% if alertas.vencidos %}
+                        <div class="mb-2"><span class="badge bg-danger"><i class="bi bi-exclamation-octagon"></i> Vencidos</span></div>
+                        <ul class="list-group list-group-flush mb-2">
+                        {% for doc in alertas.vencidos %}
+                            {% if not request.GET.status or request.GET.status == 'vencidos' %}
+                                {% if request.GET.q %}
+                                    {% if request.GET.q|lower in doc.nome_documento|lower or request.GET.q|lower in doc.funcionario.nome|lower %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ doc.nome_documento }}<br><small class="text-muted">{{ doc.funcionario.nome }} - {{ doc.data_validade|date:'d/m/Y' }}</small></span>
+                                            <div class="btn-group">
+                                                <a href="{% url 'documento_edit' doc.id %}" class="btn btn-sm btn-outline-light bg-danger"><i class="bi bi-pencil"></i></a>
+                                                <a href="{% url 'documento_delete' doc.id %}" class="btn btn-sm btn-outline-light bg-danger"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ doc.nome_documento }}<br><small class="text-muted">{{ doc.funcionario.nome }} - {{ doc.data_validade|date:'d/m/Y' }}</small></span>
+                                        <div class="btn-group">
+                                            <a href="{% url 'documento_edit' doc.id %}" class="btn btn-sm btn-outline-light bg-danger"><i class="bi bi-pencil"></i></a>
+                                            <a href="{% url 'documento_delete' doc.id %}" class="btn btn-sm btn-outline-light bg-danger"><i class="bi bi-trash"></i></a>
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if alertas.criticos %}
+                        <div class="mb-2"><span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle"></i> Críticos</span></div>
+                        <ul class="list-group list-group-flush mb-2">
+                        {% for doc in alertas.criticos %}
+                            {% if not request.GET.status or request.GET.status == 'criticos' %}
+                                {% if request.GET.q %}
+                                    {% if request.GET.q|lower in doc.nome_documento|lower or request.GET.q|lower in doc.funcionario.nome|lower %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ doc.nome_documento }}<br><small class="text-muted">{{ doc.funcionario.nome }} - {{ doc.data_validade|date:'d/m/Y' }}</small></span>
+                                            <div class="btn-group">
+                                                <a href="{% url 'documento_edit' doc.id %}" class="btn btn-sm btn-outline-dark bg-warning"><i class="bi bi-pencil"></i></a>
+                                                <a href="{% url 'documento_delete' doc.id %}" class="btn btn-sm btn-outline-dark bg-warning"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ doc.nome_documento }}<br><small class="text-muted">{{ doc.funcionario.nome }} - {{ doc.data_validade|date:'d/m/Y' }}</small></span>
+                                        <div class="btn-group">
+                                            <a href="{% url 'documento_edit' doc.id %}" class="btn btn-sm btn-outline-dark bg-warning"><i class="bi bi-pencil"></i></a>
+                                            <a href="{% url 'documento_delete' doc.id %}" class="btn btn-sm btn-outline-dark bg-warning"><i class="bi bi-trash"></i></a>
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if alertas.vencendo %}
+                        <div class="mb-2"><span class="badge bg-info text-dark"><i class="bi bi-alarm"></i> Vencendo em Breve</span></div>
+                        <ul class="list-group list-group-flush mb-2">
+                        {% for doc in alertas.vencendo %}
+                            {% if not request.GET.status or request.GET.status == 'vencendo' %}
+                                {% if request.GET.q %}
+                                    {% if request.GET.q|lower in doc.nome_documento|lower or request.GET.q|lower in doc.funcionario.nome|lower %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>{{ doc.nome_documento }}<br><small class="text-muted">{{ doc.funcionario.nome }} - {{ doc.data_validade|date:'d/m/Y' }}</small></span>
+                                            <div class="btn-group">
+                                                <a href="{% url 'documento_edit' doc.id %}" class="btn btn-sm btn-outline-light bg-info"><i class="bi bi-pencil"></i></a>
+                                                <a href="{% url 'documento_delete' doc.id %}" class="btn btn-sm btn-outline-light bg-info"><i class="bi bi-trash"></i></a>
+                                            </div>
+                                        </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>{{ doc.nome_documento }}<br><small class="text-muted">{{ doc.funcionario.nome }} - {{ doc.data_validade|date:'d/m/Y' }}</small></span>
+                                        <div class="btn-group">
+                                            <a href="{% url 'documento_edit' doc.id %}" class="btn btn-sm btn-outline-light bg-info"><i class="bi bi-pencil"></i></a>
+                                            <a href="{% url 'documento_delete' doc.id %}" class="btn btn-sm btn-outline-light bg-info"><i class="bi bi-trash"></i></a>
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12"><span class="text-muted">Nenhum alerta de documento encontrado.</span></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

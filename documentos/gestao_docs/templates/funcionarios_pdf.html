@@ -1,0 +1,35 @@
+<h1>Relatório de Funcionários</h1>
+<table border="1" cellspacing="0" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Matrícula</th>
+            <th>Ativo</th>
+            <th>Local</th>
+            <th>Criado por</th>
+            <th>Criado em</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for func in funcionarios %}
+        <tr>
+            <td>{{ func.nome }}</td>
+            <td>{{ func.matricula }}</td>
+            <td>{{ func.ativo|yesno:"Sim,Não" }}</td>
+            <td>
+                {% for loc in func.local_mobilizacao.all %}
+                    {{ loc.nome }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+            <td>
+                {% if func.criado_por %}
+                    {{ func.criado_por.username }}
+                {% else %}
+                    ---
+                {% endif %}
+            </td>
+            <td>{{ func.created_at|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

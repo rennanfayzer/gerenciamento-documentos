@@ -1,0 +1,34 @@
+# Ambientes Virtuais
+/ambiente
+/env
+
+# Arquivos de cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de backup e temporários
+*.swp
+*.swo
+*~
+*.bak
+
+# Arquivos de log
+*.log
+
+# Banco de dados local
+*.sqlite3
+db.sqlite3
+
+# Arquivos de mídia e estáticos locais (se você for servi-los de outra forma em produção)
+# media/
+# staticfiles/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de configuração de IDE
+.vscode/
+.idea/

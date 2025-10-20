@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Excluir Gestor</h2>
+    <p>Tem certeza que deseja excluir o gestor "{{ gestor.user.username }}" dos seguintes locais:
+        {% for local in gestor.locais.all %}
+            {{ local.nome }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            Nenhum local vinculado
+        {% endfor %}
+        ?
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sim, excluir</button>
+        <a href="{% url 'gestor_list' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
