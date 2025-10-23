@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from django.core.management.utils import get_random_secret_key
 
 # —————————————————————————————————————————————————————————————————————————
 # BASE DIR
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # —————————————————————————————————————————————————————————————————————————
 # SECURITY
 # —————————————————————————————————————————————————————————————————————————
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', get_random_secret_key())
 DEBUG = os.environ.get('DEBUG', '0') == '1'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
@@ -96,11 +97,11 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "doc_bd",
-        "USER": "rennan",
-        "PASSWORD": "semsenha132",
+        "NAME": os.environ.get('DB_NAME', 'doc_bd'),
+        "USER": os.environ.get('DB_USER', 'postgres'),
+        "PASSWORD": os.environ.get('DB_PASSWORD', ''),
         "HOST": os.environ.get('DB_HOST', 'localhost'),
-        "PORT": "5432",
+        "PORT": os.environ.get('DB_PORT', '5432'),
     }
 }
 

@@ -6,12 +6,12 @@ services:
     container_name: postgres_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
     environment:
-      - POSTGRES_DB=doc_bd
-      - POSTGRES_USER=rennan
-      - POSTGRES_PASSWORD=semsenha132
-    ports:
-      - "5432:5432"
+      - POSTGRES_DB=${DB_NAME:-doc_bd}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
 
   web:
     build: .
@@ -26,10 +26,10 @@ services:
       - media_volume:/app/media
     ports:
       - "8000:8000"
+    env_file:
+      - .env
     environment:
-      - SECRET_KEY=prod-django-insecure-a!b@c#d$e%f^g&h*i(j)k_l-m+n=o
-      - DEBUG=0
-      - ALLOWED_HOSTS=45.140.193.93,localhost,127.0.0.1
+      - DEBUG=${DEBUG:-0}
       - DB_HOST=db
     depends_on:
       - db

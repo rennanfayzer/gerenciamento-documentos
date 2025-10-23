@@ -83,6 +83,7 @@ celerybeat.pid
 # Environments
 .env
 .env.*
+!.env.example
 .venv
 env/
 venv/
@@ -358,9 +359,9 @@ temp/
 # ESPECÍFICO DO PROJETO
 # ================================
 
-# CSV com dados sensíveis (opcional - descomente se necessário)
-# usuarios.csv
-# local_mobilizacao.csv
+# CSV com dados sensíveis (não versionar)
+usuarios.csv
+local_mobilizacao.csv
 
 # Scripts de inicialização com paths específicos
 # iniciar_servidor.bat
