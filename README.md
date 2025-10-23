@@ -157,28 +157,13 @@ pip install -r requirements.txt
 ```
 
 #### 4. Configure as variáveis de ambiente
-Crie um arquivo `.env` na raiz do projeto `documentos/`:
+Copie o template `.env.example` para `.env` na pasta `documentos/` e ajuste os valores:
 
-```env
-# Django
-SECRET_KEY=django-insecure-sua-chave-secreta-aqui
-DEBUG=1
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=doc_bd
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha
-
-# Email (opcional)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=seu_email@gmail.com
-EMAIL_HOST_PASSWORD=sua_senha_app
+```bash
+cp ../.env.example .env
 ```
+
+Abra o arquivo `.env` e defina uma `SECRET_KEY` forte, além das credenciais do PostgreSQL que você criou no passo seguinte.
 
 #### 5. Configure o banco de dados PostgreSQL
 ```sql
@@ -224,14 +209,17 @@ cd gerenciamento-documentos
 ```
 
 #### 2. Configure as variáveis de ambiente
-Edite o arquivo `docker-compose.yml` e ajuste as variáveis:
+Crie um arquivo `.env` na raiz do projeto (ou copie o `.env.example`) com as variáveis necessárias:
 
-```yaml
-environment:
-  - SECRET_KEY=prod-sua-chave-secreta-super-segura
-  - DEBUG=0
-  - ALLOWED_HOSTS=seu-dominio.com,45.140.193.93
-  - DB_HOST=db
+```env
+SECRET_KEY=prod-sua-chave-secreta-super-segura
+DEBUG=0
+ALLOWED_HOSTS=seu-dominio.com,45.140.193.93
+DB_NAME=doc_bd
+DB_USER=seu_usuario
+DB_PASSWORD=sua_senha_super_segura
+DB_HOST=db
+DB_PORT=5432
 ```
 
 #### 3. Ajuste o Nginx
@@ -245,6 +233,8 @@ server_name seu-dominio.com;
 ```bash
 docker-compose up -d --build
 ```
+
+> ℹ️ O serviço do PostgreSQL não expõe a porta 5432 para fora da rede interna dos containers. Para desenvolvimento local, crie um `docker-compose.override.yml` com o mapeamento de porta desejado.
 
 #### 5. Execute as migrações no container
 ```bash
@@ -306,8 +296,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get('DB_NAME', 'doc_bd'),
-        "USER": os.environ.get('DB_USER', 'seu_usuario'),
-        "PASSWORD": os.environ.get('DB_PASSWORD', 'sua_senha'),
+        "USER": os.environ.get('DB_USER', 'postgres'),
+        "PASSWORD": os.environ.get('DB_PASSWORD', ''),
         "HOST": os.environ.get('DB_HOST', 'localhost'),
         "PORT": os.environ.get('DB_PORT', '5432'),
     }
@@ -334,28 +324,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 #### 1. **Arquivo `.env` para Desenvolvimento**
 
-Crie um arquivo `.env` na raiz do projeto `documentos/` (este arquivo está no .gitignore):
-
-```env
-# Django
-SECRET_KEY=django-insecure-gere-uma-chave-aleatoria-segura-aqui
-DEBUG=1
-ALLOWED_HOSTS=localhost,127.0.0.1
-
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=doc_bd
-DB_USER=seu_usuario
-DB_PASSWORD=sua_senha_forte_aqui
-
-# Email
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=seu_email@gmail.com
-EMAIL_HOST_PASSWORD=sua_senha_de_app
-```
+Copie o `.env.example` para `.env` na raiz do projeto `documentos/` (este arquivo está no .gitignore) e ajuste os valores conforme o seu ambiente.
 
 #### 2. **Gerar SECRET_KEY Segura**
 
@@ -413,27 +382,10 @@ git diff
 
 #### 6. **Arquivo `.env.example`**
 
-Crie um `.env.example` (pode versionar) como template:
+O repositório já inclui um `.env.example` como template. Copie-o e ajuste conforme necessário:
 
-```env
-# Django
-SECRET_KEY=sua-secret-key-aqui
-DEBUG=0
-ALLOWED_HOSTS=seu-dominio.com
-
-# Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=nome_do_banco
-DB_USER=usuario_do_banco
-DB_PASSWORD=senha_do_banco
-
-# Email
-EMAIL_HOST=smtp.exemplo.com
-EMAIL_PORT=587
-EMAIL_USE_TLS=True
-EMAIL_HOST_USER=email@exemplo.com
-EMAIL_HOST_PASSWORD=senha_do_email
+```bash
+cp .env.example .env
 ```
 
 ### 🛡️ Checklist de Segurança
